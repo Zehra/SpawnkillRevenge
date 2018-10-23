@@ -20,22 +20,27 @@ class SpawnkillRevenge final : public bz_Plugin {
 
 	public:
 		virtual char const* Name() override {
-			return "Spawnkill Revenge 1.0.0";
+			return "Spawnkill Revenge 1.1.0";
 		}
 
 		virtual void Init(char const* /*config*/) override {
-			Register(bz_ePlayerDieEvent);
 			Register(bz_ePlayerSpawnEvent);
+			Register(bz_eShotFiredEvent  );
+			Register(bz_ePlayerDieEvent  );
 
 			// Kills shorter than this are considered spawnkills.  Set using
 			// `-set spawnkillTime <value>` (load time)
 			// `/set spawnkillTime <value>` (in-game)
 			bz_registerCustomBZDBDouble("spawnkillTime",5.0);
+			// `-set spawnkillFireInvalidates <truthy value>` (load time)
+			// `/set spawnkillFireInvalidates <truthy value>` (in-game)
+			bz_registerCustomBZDBBool  ("spawnkillFireInvalidates",true);
 		}
 		virtual void Cleanup() override {
 			Flush(); //Unregisters events
 
 			bz_removeCustomBZDBVariable("spawnkillTime");
+			bz_removeCustomBZDBVariable("spawnkillFireInvalidates");
 		}
 
 		virtual void Event(bz_EventData* event_data) {
@@ -46,25 +51,38 @@ class SpawnkillRevenge final : public bz_Plugin {
 					break;
 				}
 
+				case bz_eShotFiredEvent: {
+					bz_ShotFiredEventData_V1 const* data = static_cast<bz_ShotFiredEventData_V1 const*>(event_data);
+
+					if (bz_getBZDBBool("spawnkillFireInvalidates")) {
+						auto iter = _spawntime.find(data->playerID);
+
+						if (iter!=_spawntime.cend()) _spawntime.erase(iter);
+					}
+
+					break;
+				}
+
 				case bz_ePlayerDieEvent: {
 					bz_PlayerDieEventData_V2 const* data = static_cast<bz_PlayerDieEventData_V2 const*>(event_data);
 
-					auto iter = _spawntime[data->playerID];
+					auto iter = _spawntime.find(data->playerID);
+					if (iter!=_spawntime.cend()) {
+						if (data->killerID!=BZ_SERVER && data->killerID!=data->playerID) {
+							double lifetime = data->eventTime - iter->second;
 
-					if (data->killerID!=BZ_SERVER) {
-						double lifetime = data->eventTime - iter;
+							if (lifetime<bz_getBZDBDouble("spawnkillTime")) {
+								bz_sendTextMessage(
+									BZ_SERVER, data->killerID,
+									"Spawnkill detected.  If this seemed necessary tactically, change the approach you're taking strategically."
+								);
 
-						if (lifetime<bz_getBZDBDouble("spawnkillTime")) {
-							bz_sendTextMessage(
-								BZ_SERVER, data->killerID,
-								"Spawnkill detected.  If this seemed necessary tactically, change the approach you're taking strategically."
-							);
-
-							bz_killPlayer(data->killerID,true);
+								bz_killPlayer(data->killerID,true);
+							}
 						}
-					}
 
-					_spawntime.erase(iter);
+						_spawntime.erase(iter);
+					}
 
 					break;
 				}
