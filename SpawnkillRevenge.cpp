@@ -4,7 +4,8 @@
 	MIT License.
 	Explicitly: feel free to use this plugin, including with your modifications, on any server.
 
-	Special thanks to Allejo for providing development resources that made this easy.
+	Special thanks to +allejo for providing development resources that made this easy, and to
+	+allejo and blast007 for setup assistance on IRC #bzflag.
  */
 
 #include <map>
@@ -48,7 +49,7 @@ class SpawnkillRevenge final : public bz_Plugin {
 				case bz_ePlayerDieEvent: {
 					bz_PlayerDieEventData_V2 const* data = static_cast<bz_PlayerDieEventData_V2 const*>(event_data);
 
-                    auto iter = _spawntime[data->playerID];
+					auto iter = _spawntime[data->playerID];
 
 					if (data->killerID!=BZ_SERVER) {
 						double lifetime = data->eventTime - iter;

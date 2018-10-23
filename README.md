@@ -37,14 +37,6 @@ You will probably need to install some development packages.  Besides the more-u
     git clone -b 2.4 https://github.com/BZFlag-Dev/bzflag.git bzflag
 
 
-(Unsure whether necessary) Edit "bzflag/plugins/Makefile.am" and insert the following line (around line 31 so it's alphabetical):
-
-    	SpawnkillRevenge \
-
-(Unsure whether necessary) Edit "bzflag/configure.ac" and insert the following line (around line 1092 so it's alphabetical):
-
-    	plugins/SpawnkillRevenge/Makefile
-
 Setup and build:
 
     cd bzflag/plugins/
@@ -59,10 +51,18 @@ Setup and build:
 
 ## Configuring
 
-The period of time during which a player is considered to be spawnkilled is given by the BZDB variable `spawnkillTime`.  You can set it at load time by passing:
+Load the plugin:
+
+    -loadplugin SpawnkillRevenge
+
+In-game:
+
+	/loadplugin SpawnkillRevenge
+
+The period of time during which a player is considered to be spawnkilled is given by the floating-point BZDB variable `spawnkillTime` (the default is "5.0" seconds; you should experiment with different values for your server).  You can set it at load time by passing:
 
     -set spawnkillTime <seconds>
 
 You can set it in-game with:
 
-	/set spawnkillTime <seconds>
+    /set spawnkillTime <seconds>
