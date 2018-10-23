@@ -37,11 +37,11 @@ You will probably need to install some development packages.  Besides the more-u
     git clone -b 2.4 https://github.com/BZFlag-Dev/bzflag.git bzflag
 
 
-Edit "bzflag/plugins/Makefile.am" and insert the following line (around line 31 so it's alphabetical):
+(Unsure whether necessary) Edit "bzflag/plugins/Makefile.am" and insert the following line (around line 31 so it's alphabetical):
 
     	SpawnkillRevenge \
 
-Edit "bzflag/configure.ac" and insert the following line (around line 1092 so it's alphabetical):
+(Unsure whether necessary) Edit "bzflag/configure.ac" and insert the following line (around line 1092 so it's alphabetical):
 
     	plugins/SpawnkillRevenge/Makefile
 
@@ -51,9 +51,11 @@ Setup and build:
     git clone https://github.com/agatha2/SpawnkillRevenge.git
     cd ../
     ./autogen.sh
-    ./configure
+    ./configure --enable-custom-plugins=SpawnkillRevenge
     make
     sudo make install
+
+
 
 ## Configuring
 
@@ -64,4 +66,3 @@ The period of time during which a player is considered to be spawnkilled is give
 You can set it in-game with:
 
 	/set spawnkillTime <seconds>
-
